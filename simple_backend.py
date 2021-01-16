@@ -56,25 +56,22 @@ def get_users():
    elif request.method == 'POST':
       userToAdd = request.get_json()
       users['users_list'].append(userToAdd)
-      resp = jsonify(success=True)
+      resp = jsonify(success=True),201
       #resp.status_code = 200 #optionally, you can always set a response code. 
       # 200 is the default code for a normal response
       return resp
 
 @app.route('/users/<id>', methods = ['GET', 'DELETE'])
 def get_user(id):
-   if request.method == 'GET':
-      if id :
-         for user in users['users_list']:
-            if user['id'] == id:
-               return user
-         return ({})
-      return users
-   elif request.method == 'DELETE':
-   	  if id :
-   	  	 subdict = {'users_list': []}
-   	  	 for user in users['users_list']:
-   	  	 	if user['id'] != id:
-   	  	 		subdict['users_list'].append(user)
-   	  	 return subdict
-   	  return users
+   if id:
+   	for user in users['users_list']:
+   		if user['id'] == id:
+   			if request.method == 'GET':
+   				return user
+   			elif request.method == 'DELETE':
+   				users['users_list'].remove(user)
+   				resp = jsonify()
+   				return resp
+   	resp = jsonify({"Msg": "User not found with provided id."}), 404
+   	return resp
+   return users
